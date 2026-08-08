@@ -3,11 +3,9 @@ let cart = [];
 
 // 加入購物車
 function addToCart(productName, price, imgElementId) {
-    // 取得圖片的 src (處理包含 Data URI 的情況)
     const imgElement = document.getElementById(imgElementId);
     const imgUrl = imgElement ? imgElement.src : '';
 
-    // 將商品物件推入陣列
     cart.push({ name: productName, price: price, img: imgUrl });
     
     updateCartCount();
@@ -27,7 +25,6 @@ function toggleCart() {
     const modal = document.getElementById('cart-modal');
     modal.classList.toggle('hidden');
     
-    // 如果是打開狀態，重新渲染購物車內容
     if (!modal.classList.contains('hidden')) {
         renderCartItems();
     }
@@ -59,7 +56,6 @@ function renderCartItems() {
         });
     }
     
-    // 更新總金額
     totalElement.textContent = total.toLocaleString();
 }
 
@@ -79,16 +75,77 @@ function checkout() {
     
     alert('感謝您的測試！\n\n這是一個展示用的 MVP 原型，目前尚未串接真實金流系統。您的訂單不會被扣款。');
     
-    // 結帳後清空購物車
     cart = [];
     updateCartCount();
     toggleCart();
 }
 
+// --- 產品上傳邏輯 ---
+
+// 開關上傳產品彈窗
+function toggleUploadModal() {
+    const modal = document.getElementById('upload-modal');
+    modal.classList.toggle('hidden');
+}
+
+// 處理產品上傳表單送出
+function handleUpload(event) {
+    event.preventDefault(); 
+
+    const name = document.getElementById('prod-name').value;
+    const price = parseInt(document.getElementById('prod-price').value);
+    const desc = document.getElementById('prod-desc').value;
+    const target = document.getElementById('prod-target').value;
+    const fileInput = document.getElementById('prod-img');
+    const imgFile = fileInput.files[0];
+
+    if (!imgFile) {
+        alert('請選擇一張圖片！');
+        return;
+    }
+
+    const imgUrl = URL.createObjectURL(imgFile);
+    const uniqueImgId = 'uploaded-img-' + Date.now();
+
+    const newCard = document.createElement('article');
+    newCard.className = 'product-card';
+    newCard.innerHTML = `
+        <div class="product-image">
+            <img src="${imgUrl}" alt="${name}" id="${uniqueImgId}">
+        </div>
+        <div class="product-info">
+            <span class="category">寵物飼料 (新增)</span>
+            <h3>${name}</h3>
+            <p class="one-liner">${desc}</p>
+            
+            <div class="target-audience">
+                <strong>適合對象：</strong>${target}
+            </div>
+            
+            <div class="price-section">
+                <p class="price">NT$ ${price.toLocaleString()}</p>
+            </div>
+            
+            <button class="btn btn-buy" onclick="addToCart('${name}', ${price}, '${uniqueImgId}')">加入購物車</button>
+        </div>
+    `;
+
+    const grid = document.querySelector('.product-grid');
+    grid.appendChild(newCard);
+
+    document.getElementById('upload-form').reset();
+    toggleUploadModal();
+    
+    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+    
+    setTimeout(() => {
+        alert(`產品「${name}」已成功發布！\n(此為無資料庫前端展示，重新整理網頁後新增的產品會消失)`);
+    }, 500);
+}
+
 // --- 頁面載入後的互動功能 ---
 document.addEventListener('DOMContentLoaded', () => {
     
-    // FAQ 展開/收合功能
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const questionBtn = item.querySelector('.faq-question');
@@ -102,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 平滑滾動 (Smooth Scroll)
     const heroBtn = document.querySelector('.hero .btn-secondary');
     if (heroBtn) {
         heroBtn.addEventListener('click', (e) => {
