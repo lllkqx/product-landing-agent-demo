@@ -6,28 +6,25 @@
     <title>天才 | 給寵物吃的健康飼料</title>
     <meta name="description" content="天才 — 專注於寵物健康的專業飼料品牌。我們提供成分單純、營養均衡的寵物食品，用心為毛孩的日常飲食把關。">
     <meta name="robots" content="noindex">
-    <link rel="canonical" href="https://example.com/">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="天才 | 給寵物吃的健康飼料">
-    <meta property="og:description" content="專注於寵物健康的專業飼料品牌。成分單純，營養均衡。">
-    <meta property="og:image" content="https://example.com/assets/images/product-01.jpg">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="天才 | 給寵物吃的健康飼料">
-    <meta name="twitter:description" content="專注於寵物健康的專業飼料品牌。成分單純，營養均衡。">
-    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 購物車導覽列 -->
+    <nav class="top-nav">
+        <div class="container nav-container">
+            <div class="brand">天才</div>
+            <button class="btn-cart" onclick="toggleCart()">
+                🛒 購物車 (<span id="cart-count">0</span>)
+            </button>
+        </div>
+    </nav>
+
     <!-- 首屏區 Hero Section -->
     <header class="hero">
         <div class="container">
             <h1>給寵物最純粹的健康選擇</h1>
             <p class="subtitle">專注於營養與品質，讓每一次餵食都成為毛孩的健康基石。</p>
-            <a href="#products" class="btn btn-primary">查看產品</a>
+            <a href="#products" class="btn btn-secondary">查看產品</a>
         </div>
     </header>
 
@@ -45,7 +42,6 @@
         <div class="container">
             <h2>我們的產品</h2>
             
-            <!-- 分類標籤 (MVP 簡單示意) -->
             <div class="filters">
                 <button class="filter-btn active">全部</button>
                 <button class="filter-btn">寵物飼料</button>
@@ -55,7 +51,8 @@
                 <!-- 產品卡片 1 -->
                 <article class="product-card">
                     <div class="product-image">
-                        <img src="assets/images/product-01.jpg" alt="好健康 - 寵物飼料產品圖">
+                        <!-- 使用 SVG Data URI 作為產品圖片，不需外部檔案 -->
+                        <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23EBF0EB'/%3E%3Cpath d='M100,350 L120,100 L280,100 L300,350 Z' fill='%234A6741'/%3E%3Ccircle cx='200' cy='220' r='50' fill='%23FFF'/%3E%3Ctext x='200' y='235' font-size='30' font-family='sans-serif' font-weight='bold' fill='%234A6741' text-anchor='middle'%3E天才%3C/text%3E%3Ctext x='200' y='150' font-size='20' font-family='sans-serif' fill='%23FFF' text-anchor='middle'%3E好健康飼料%3C/text%3E%3C/svg%3E" alt="好健康 - 寵物飼料產品圖" id="product-img-1">
                     </div>
                     <div class="product-info">
                         <span class="category">寵物飼料</span>
@@ -67,12 +64,11 @@
                         </div>
                         
                         <div class="price-section">
-                            <p class="price">優惠價：待補</p>
-                            <p class="price-note">實際售價以通路頁面為準</p>
+                            <p class="price">NT$ 850</p>
                         </div>
                         
-                        <!-- 外部連結設定：target="_blank" 且 rel="noopener noreferrer" -->
-                        <a href="https://shop.tapazo.pet/" target="_blank" rel="noopener noreferrer" class="btn btn-buy">前往購買</a>
+                        <!-- 改為本站加入購物車，不再導出 -->
+                        <button class="btn btn-buy" onclick="addToCart('好健康寵物飼料', 850, 'product-img-1')">加入購物車</button>
                     </div>
                 </article>
             </div>
@@ -96,20 +92,7 @@
                         <p>我們的產品皆在台灣在地製造，並通過基礎的食品安全檢驗，確保毛孩吃得安心。</p>
                     </div>
                 </div>
-                <div class="faq-item">
-                    <button class="faq-question">開封後該如何保存？ <span class="icon">+</span></button>
-                    <div class="faq-answer">
-                        <p>請將飼料置於陰涼乾燥處，避免陽光直射。開封後請確實密封，並建議於一個月內食用完畢以確保新鮮。</p>
-                    </div>
-                </div>
             </div>
-        </div>
-    </section>
-
-    <!-- 商業合作與揭露聲明 -->
-    <section class="disclosure">
-        <div class="container">
-            <p><strong>商業揭露聲明：</strong>本網站目前為產品展示原型，頁面中的外部購買連結均為一般導流，未包含聯盟行銷 (Affiliate) 追蹤碼。如未來加入分潤連結，將會於此處更新說明，以確保資訊透明。</p>
         </div>
     </section>
 
@@ -120,6 +103,21 @@
             <p class="footer-note">用心為您的寵物提供健康選擇</p>
         </div>
     </footer>
+
+    <!-- 購物車 Modal 彈窗 -->
+    <div id="cart-modal" class="cart-modal hidden">
+        <div class="cart-content">
+            <span class="close-cart" onclick="toggleCart()">&times;</span>
+            <h2>您的購物車</h2>
+            <div id="cart-items">
+                <!-- 購物車內容會由 JavaScript 動態生成 -->
+            </div>
+            <div class="cart-total">
+                總計: <span class="total-highlight">NT$ <span id="total-price">0</span></span>
+            </div>
+            <button class="btn btn-primary" onclick="checkout()" style="width: 100%;">確認結帳</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
