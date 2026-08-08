@@ -80,12 +80,48 @@ function checkout() {
     toggleCart();
 }
 
-// --- 產品上傳邏輯 ---
+// --- 產品上傳與 LocalStorage 記憶邏輯 ---
 
 // 開關上傳產品彈窗
 function toggleUploadModal() {
     const modal = document.getElementById('upload-modal');
     modal.classList.toggle('hidden');
+}
+
+// 將圖片轉為 Base64 格式，這樣才能存入瀏覽器的 LocalStorage
+function getBase64(file, callback) {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => callback(reader.result));
+    reader.readAsDataURL(file);
+}
+
+// 將產品卡片畫到網頁上的通用函數
+function renderNewProduct(product) {
+    const newCard = document.createElement('article');
+    newCard.className = 'product-card';
+    newCard.innerHTML = `
+        <div class="product-image">
+            <img src="${product.img}" alt="${product.name}" id="${product.id}">
+        </div>
+        <div class="product-info">
+            <span class="category">寵物飼料 (新增)</span>
+            <h3>${product.name}</h3>
+            <p class="one-liner">${product.desc}</p>
+            
+            <div class="target-audience">
+                <strong>適合對象：</strong>${product.target}
+            </div>
+            
+            <div class="price-section">
+                <p class="price">NT$ ${product.price.toLocaleString()}</p>
+            </div>
+            
+            <button class="btn btn-buy" onclick="addToCart('${product.name}', ${product.price}, '${product.id}')">加入購物車</button>
+        </div>
+    `;
+
+    const grid = document.querySelector('.product-grid');
+    grid.appendChild(newCard);
 }
 
 // 處理產品上傳表單送出
@@ -104,48 +140,44 @@ function handleUpload(event) {
         return;
     }
 
-    const imgUrl = URL.createObjectURL(imgFile);
-    const uniqueImgId = 'uploaded-img-' + Date.now();
+    // 處理圖片轉換並儲存
+    getBase64(imgFile, (base64Img) => {
+        const newProduct = {
+            id: 'uploaded-img-' + Date.now(),
+            name: name,
+            price: price,
+            desc: desc,
+            target: target,
+            img: base64Img // 存入轉換後的 Base64 圖片編碼
+        };
 
-    const newCard = document.createElement('article');
-    newCard.className = 'product-card';
-    newCard.innerHTML = `
-        <div class="product-image">
-            <img src="${imgUrl}" alt="${name}" id="${uniqueImgId}">
-        </div>
-        <div class="product-info">
-            <span class="category">寵物飼料 (新增)</span>
-            <h3>${name}</h3>
-            <p class="one-liner">${desc}</p>
-            
-            <div class="target-audience">
-                <strong>適合對象：</strong>${target}
-            </div>
-            
-            <div class="price-section">
-                <p class="price">NT$ ${price.toLocaleString()}</p>
-            </div>
-            
-            <button class="btn btn-buy" onclick="addToCart('${name}', ${price}, '${uniqueImgId}')">加入購物車</button>
-        </div>
-    `;
+        // 1. 讀取目前存在瀏覽器裡的產品名單，並加入新產品
+        let savedProducts = JSON.parse(localStorage.getItem('customProducts') || '[]');
+        savedProducts.push(newProduct);
+        localStorage.setItem('customProducts', JSON.stringify(savedProducts));
 
-    const grid = document.querySelector('.product-grid');
-    grid.appendChild(newCard);
+        // 2. 顯示到畫面上
+        renderNewProduct(newProduct);
 
-    document.getElementById('upload-form').reset();
-    toggleUploadModal();
-    
-    document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
-    
-    setTimeout(() => {
-        alert(`產品「${name}」已成功發布！\n(此為無資料庫前端展示，重新整理網頁後新增的產品會消失)`);
-    }, 500);
+        // 3. 收尾與提示
+        document.getElementById('upload-form').reset();
+        toggleUploadModal();
+        document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        
+        setTimeout(() => {
+            alert(`產品「${name}」已成功發布！\n(已儲存於瀏覽器快取中，重新整理網頁後將不再消失)`);
+        }, 500);
+    });
 }
 
 // --- 頁面載入後的互動功能 ---
 document.addEventListener('DOMContentLoaded', () => {
     
+    // 初始化：網頁一打開，就把存檔的產品拿出來渲染
+    const savedProducts = JSON.parse(localStorage.getItem('customProducts') || '[]');
+    savedProducts.forEach(product => renderNewProduct(product));
+
+    // FAQ 展開/收合
     const faqItems = document.querySelectorAll('.faq-item');
     faqItems.forEach(item => {
         const questionBtn = item.querySelector('.faq-question');
@@ -159,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // 平滑滾動
     const heroBtn = document.querySelector('.hero .btn-secondary');
     if (heroBtn) {
         heroBtn.addEventListener('click', (e) => {
