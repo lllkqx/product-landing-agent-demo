@@ -9,13 +9,18 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- 購物車導覽列 -->
+    <!-- 購物車與管理員導覽列 -->
     <nav class="top-nav">
         <div class="container nav-container">
             <div class="brand">天才</div>
-            <button class="btn-cart" onclick="toggleCart()">
-                🛒 購物車 (<span id="cart-count">0</span>)
-            </button>
+            <div>
+                <button class="btn-cart" onclick="toggleUploadModal()" style="margin-right: 10px; background-color: rgba(0,0,0,0.2);">
+                    ➕ 上傳產品
+                </button>
+                <button class="btn-cart" onclick="toggleCart()">
+                    🛒 購物車 (<span id="cart-count">0</span>)
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -51,7 +56,7 @@
                 <!-- 產品卡片 1 -->
                 <article class="product-card">
                     <div class="product-image">
-                        <!-- 使用 SVG Data URI 作為產品圖片，不需外部檔案 -->
+                        <!-- 使用 SVG Data URI 作為產品圖片 -->
                         <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23EBF0EB'/%3E%3Cpath d='M100,350 L120,100 L280,100 L300,350 Z' fill='%234A6741'/%3E%3Ccircle cx='200' cy='220' r='50' fill='%23FFF'/%3E%3Ctext x='200' y='235' font-size='30' font-family='sans-serif' font-weight='bold' fill='%234A6741' text-anchor='middle'%3E天才%3C/text%3E%3Ctext x='200' y='150' font-size='20' font-family='sans-serif' fill='%23FFF' text-anchor='middle'%3E好健康飼料%3C/text%3E%3C/svg%3E" alt="好健康 - 寵物飼料產品圖" id="product-img-1">
                     </div>
                     <div class="product-info">
@@ -67,8 +72,7 @@
                             <p class="price">NT$ 850</p>
                         </div>
                         
-                        <!-- 改為本站加入購物車，不再導出 -->
-                        <button class="btn btn-buy" onclick="addToCart('好健康寵物飼料', 850, 'product-img-1')">加入購物車</button>
+                        <button class="btn btn-buy" onclick="addToCart('好健康', 850, 'product-img-1')">加入購物車</button>
                     </div>
                 </article>
             </div>
@@ -116,6 +120,37 @@
                 總計: <span class="total-highlight">NT$ <span id="total-price">0</span></span>
             </div>
             <button class="btn btn-primary" onclick="checkout()" style="width: 100%;">確認結帳</button>
+        </div>
+    </div>
+
+    <!-- 上傳產品 Modal 彈窗 -->
+    <div id="upload-modal" class="cart-modal hidden">
+        <div class="cart-content" style="max-width: 500px;">
+            <span class="close-cart" onclick="toggleUploadModal()">&times;</span>
+            <h2>新增產品 (管理員介面)</h2>
+            <form id="upload-form" onsubmit="handleUpload(event)">
+                <div class="form-group">
+                    <label for="prod-name">產品名稱</label>
+                    <input type="text" id="prod-name" required placeholder="例如：好聰明飼料">
+                </div>
+                <div class="form-group">
+                    <label for="prod-price">價格 (NT$)</label>
+                    <input type="number" id="prod-price" required placeholder="例如：950" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="prod-desc">一句話介紹</label>
+                    <input type="text" id="prod-desc" required placeholder="例如：富含 Omega-3，保護毛孩關節。">
+                </div>
+                <div class="form-group">
+                    <label for="prod-target">適合對象</label>
+                    <input type="text" id="prod-target" required placeholder="例如：需要補充關節營養的高齡犬。">
+                </div>
+                <div class="form-group">
+                    <label for="prod-img">上傳產品圖片</label>
+                    <input type="file" id="prod-img" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">確認上傳並發布</button>
+            </form>
         </div>
     </div>
 
